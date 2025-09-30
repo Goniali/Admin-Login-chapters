@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Appendix: Code-to-Thesis Mapping</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
+    h1 { color: #2c3e50; }
+    table { border-collapse: collapse; width: 100%; background: white; }
+    th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
+    th { background-color: #2c3e50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    code { background-color: #f4f4f4; padding: 2px 4px; font-family: monospace; display: block; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Appendix: Code-to-Thesis Mapping</h1>
+  <p>This appendix shows the correspondence between code snippets, thesis sections, and results.</p>
+  <table>
+    <tr>
+      <th>Section</th>
+      <th>Description</th>
+      <th>Key Code Snippet</th>
+      <th>Thesis Reference</th>
+      <th>Output / Result</th>
+    </tr>
+    <tr>
+      <td>Imports</td>
+      <td>Imports libraries for TensorFlow, PyTorch, Scikit-learn, visualization, and sets random seeds.</td>
+      <td><code>import tensorflow as tf
+import torch
+from sklearn.svm import SVC
+from skimage.feature import hog
+np.random.seed(42)
+tf.random.set_seed(42)
+torch.manual_seed(42)</code></td>
+      <td>Chapter Three: 3.1.1 Materials (Software)</td>
+      <td>Confirms library versions and reproducibility setup.</td>
+    </tr>
+    <tr>
+      <td>Dataset Loading</td>
+      <td>Loads CIFAR-10 dataset for training/testing.</td>
+      <td><code>(x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+class_names = ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']</code></td>
+      <td>Chapter Three: 3.1.1 Materials (Dataset: CIFAR-10)</td>
+      <td>50,000 training + 10,000 test images.</td>
+    </tr>
+    <tr>
+      <td>Preprocessing</td>
+      <td>Resize, normalize, augment, and split data into train/val/test.</td>
+      <td><code>def preprocess_data(x, y, image_size=(224,224)):
+    x = tf.image.resize(x, image_size).numpy()/255.0
+    y = y.flatten()
+    return x,y</code></td>
+      <td>Chapter Three: 3.1.2.1 Dataset Preprocessing</td>
+      <td>Train (~35k), Val (~10k), Test (~5k), improved robustness.</td>
+    </tr>
+    <tr>
+      <td>MobileNetV2 Setup</td>
+      <td>Configure MobileNetV2 pre-trained on ImageNet.</td>
+      <td><code>base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
+base_model.trainable = False
+model = tf.keras.Sequential([
+    base_model,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dropout(0.5),
+    tf.keras.layers.Dense(10, activation='softmax')
+])</code></td>
+      <td>Chapter Three: 3.1.2.2 Model Selection</td>
+      <td>Lightweight model ready for feature extraction.</td>
+    </tr>
+    <tr>
+      <td>MobileNetV2 Training</td>
+      <td>Train MobileNetV2 with Adam optimizer, 50 epochs, early stopping.</td>
+      <td><code>model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+history = model.fit(...)</code></td>
+      <td>Chapter Three: 3.1.2.4 Implementation & Training</td>
+      <td>Accuracy ~90%, training ~1.2 hrs.</td>
+    </tr>
+    <tr>
+      <td>Fine-Tuning (PyTorch)</td>
+      <td>Unfreeze top layers of MobileNetV2, fine-tune with Adam + cosine decay.</td>
+      <td><code>model_torch = models.mobilenet_v2(pretrained=True)
+model_torch.classifier = nn.Sequential(
+    nn.Linear(1280,128), nn.ReLU(), nn.Dropout(0.5), nn.Linear(128,10)
+)
+optimizer = torch.optim.Adam(model_torch.parameters(), lr=0.0001)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)</code></td>
+      <td>Chapter Three: 3.1.2.4 Implementation & Training</td>
+      <td>Accuracy ~92.3%, training ~2.3 hrs.</td>
+    </tr>
+    <tr>
+      <td>SVM Baseline</td>
+      <td>Extract HOG features and train SVM with RBF kernel.</td>
+      <td><code>fd = hog(img, pixels_per_cell=(8,8), cells_per_block=(2,2), channel_axis=2)
+svm = SVC(kernel='rbf', random_state=42)
+svm.fit(x_train_hog, y_train)</code></td>
+      <td>Chapter Three: 3.1.2.2 Model Selection</td>
+      <td>Accuracy ~78.5%, training ~25 mins.</td>
+    </tr>
+    <tr>
+      <td>Evaluation Metrics</td>
+      <td>Compute accuracy, precision, recall, F1, confusion matrix.</td>
+      <td><code>from sklearn.metrics import classification_report, confusion_matrix
+print(classification_report(y_test,y_pred))</code></td>
+      <td>Chapter Three: 3.1.2.5 Evaluation; Chapter Four</td>
+      <td>MobileNetV2: 92.3% acc. SVM: 78.5% acc.</td>
+    </tr>
+    <tr>
+      <td>Robustness Testing</td>
+      <td>Test with augmented and adversarial samples.</td>
+      <td><code>def fgsm_attack(model, images, labels, epsilon=0.1):
+    with tf.GradientTape() as tape:
+        tape.watch(images)
+        predictions = model(images)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(labels, predictions)
+    gradient = tape.gradient(loss, images)
+    return np.clip(images + epsilon * tf.sign(gradient),0,1)</code></td>
+      <td>Chapter Three: 3.1.2.5 Evaluation; Chapter Four: Robustness</td>
+      <td>MobileNetV2: 85–89%, SVM: 68–72%.</td>
+    </tr>
+    <tr>
+      <td>Computational Efficiency</td>
+      <td>Measure training/inference time and memory usage.</td>
+      <td><code>print("Training Time:", total_training_time)
+print("Inference Time:", inference_time)</code></td>
+      <td>Chapter Three: 3.1.2.5 Evaluation; Chapter Four: Efficiency</td>
+      <td>MobileNetV2: ~2.3 hrs, inference ~ms/image.</td>
+    </tr>
+  </table>
+</body>
+</html>
