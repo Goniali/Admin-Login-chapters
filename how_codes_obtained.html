@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>How the Codes Were Obtained</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
+    h1 { color: #2c3e50; }
+    h2 { color: #34495e; margin-top: 20px; }
+    p { line-height: 1.6; }
+    ul { line-height: 1.6; }
+    li { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>How the Codes Were Obtained</h1>
+
+  <h2>1. Based on Objectives</h2>
+  <p>The codes were written and adapted to align directly with the research objectives:</p>
+  <ul>
+    <li><b>i.</b> Build a transfer learning model for image classification.</li>
+    <li><b>ii.</b> Evaluate it with accuracy, precision, recall, and F1-score.</li>
+    <li><b>iii.</b> Compare it with a conventional machine learning baseline (SVM with HOG).</li>
+  </ul>
+  <p>Therefore, each section of code was chosen to implement exactly these objectives.</p>
+
+  <h2>2. Using Standard Frameworks</h2>
+  <p>The snippets come from widely used, open-source libraries to ensure reproducibility and accessibility:</p>
+  <ul>
+    <li><b>TensorFlow/Keras</b> → for <i>MobileNetV2 feature extraction & training</i>.</li>
+    <li><b>PyTorch</b> → for <i>fine-tuning MobileNetV2 with flexibility</i>.</li>
+    <li><b>Scikit-learn</b> → for <i>building the SVM baseline and evaluation metrics</i>.</li>
+    <li><b>Skimage (hog)</b> → for <i>extracting handcrafted HOG features</i>.</li>
+  </ul>
+
+  <p>This structured selection of frameworks ensures that the code is grounded in standard, peer-reviewed practices in machine learning and computer vision.</p>
+
+</body>
+</html>
